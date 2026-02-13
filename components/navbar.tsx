@@ -17,6 +17,9 @@ export function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
+          <Link href="/" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+            Inicio
+          </Link>
           <Link href="/#nosotros" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Nosotros
           </Link>
@@ -61,6 +64,13 @@ export function Navbar() {
       {mobileOpen && (
         <div className="border-t border-border/50 bg-background/95 backdrop-blur-xl md:hidden">
           <div className="flex flex-col gap-4 px-6 py-6">
+            <Link
+              href="/"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              onClick={() => setMobileOpen(false)}
+            >
+              Inicio
+            </Link>
             <Link
               href="/#nosotros"
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
