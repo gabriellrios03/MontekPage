@@ -17,6 +17,9 @@ export function Navbar() {
         </Link>
 
         <div className="hidden items-center gap-8 md:flex">
+          <Link href="/" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+            Inicio
+          </Link>
           <Link href="/#nosotros" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Nosotros
           </Link>
@@ -25,6 +28,9 @@ export function Navbar() {
           </Link>
           <Link href="/nexus" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Nexus
+          </Link>
+          <Link href="/distribuidores" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+            Distribuidores
           </Link>
         </div>
 
@@ -59,6 +65,13 @@ export function Navbar() {
         <div className="border-t border-border/50 bg-background/95 backdrop-blur-xl md:hidden">
           <div className="flex flex-col gap-4 px-6 py-6">
             <Link
+              href="/"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              onClick={() => setMobileOpen(false)}
+            >
+              Inicio
+            </Link>
+            <Link
               href="/#nosotros"
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               onClick={() => setMobileOpen(false)}
@@ -78,6 +91,13 @@ export function Navbar() {
               onClick={() => setMobileOpen(false)}
             >
               Nexus
+            </Link>
+            <Link
+              href="/distribuidores"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              onClick={() => setMobileOpen(false)}
+            >
+              Distribuidores
             </Link>
             <div className="flex flex-col gap-2 pt-4 border-t border-border/50">
               <Button variant="ghost" size="sm" asChild>

@@ -9,7 +9,7 @@ const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space
 
 export const metadata: Metadata = {
   title: 'Montek | Tecnologia que conecta tu operacion',
-  description: 'Integramos, automatizamos y potenciamos sistemas empresariales como CONTPAQi®. Conoce Nexus, la plataforma que lleva tu operacion al siguiente nivel.',
+  description: 'Integramos, automatizamos y potenciamos sistemas empresariales. Conoce Nexus, la plataforma que lleva tu operacion al siguiente nivel.',
 }
 
 export default function RootLayout({
