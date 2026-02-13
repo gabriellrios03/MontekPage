@@ -27,7 +27,7 @@ export function Hero() {
         </h1>
 
         <p className="animate-fade-in-up animation-delay-400 mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-muted-foreground md:text-xl">
-          Integramos, automatizamos y potenciamos sistemas empresariales como CONTPAQi®.
+          Integramos, automatizamos y potenciamos sistemas empresariales. Transformamos la forma en que tu empresa gestiona sus procesos.
         </p>
 
         <div className="animate-fade-in-up animation-delay-600 mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">

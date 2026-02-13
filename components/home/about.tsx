@@ -4,7 +4,7 @@ const features = [
   {
     icon: Link2,
     title: "Integraciones nativas",
-    description: "Conectamos tus sistemas de forma nativa y estructurada, mediante servicios cloud-native totalmente integrados con CONTPAQi®, sin parches ni soluciones improvisadas.",
+    description: "Conectamos tus sistemas de forma nativa y estructurada, mediante servicios cloud-native totalmente integrados, sin parches ni soluciones improvisadas.",
   },
   {
     icon: Cpu,
@@ -36,7 +36,7 @@ export function About() {
               Tecnologia empresarial con proposito
             </h2>
             <p className="mt-6 text-lg leading-relaxed text-muted-foreground">
-              Montek es una empresa de tecnologia especializada en integraciones empresariales, automatizacion de procesos y desarrollo de plataformas que extienden el alcance de sistemas tradicionales como CONTPAQi®.
+              Montek es una empresa de tecnologia especializada en integraciones empresariales, automatizacion de procesos y desarrollo de plataformas que extienden el alcance de tus sistemas de gestion.
             </p>
           </div>
 

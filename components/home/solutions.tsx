@@ -6,7 +6,7 @@ const solutions = [
     icon: Layers,
     title: "Nexus",
     subtitle: "Plataforma",
-    description: "Extiende CONTPAQi® con web, automatizacion, BI y APIs en una sola plataforma.",
+    description: "Plataforma web que extiende tus sistemas con automatizacion, BI y APIs.",
     href: "/nexus",
     accent: true,
   },
