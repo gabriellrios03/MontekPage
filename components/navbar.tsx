@@ -26,6 +26,9 @@ export function Navbar() {
           <Link href="/nexus" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Nexus
           </Link>
+          <Link href="/contpaqi" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+            CONTPAQi®
+          </Link>
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
@@ -78,6 +81,13 @@ export function Navbar() {
               onClick={() => setMobileOpen(false)}
             >
               Nexus
+            </Link>
+            <Link
+              href="/contpaqi"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              onClick={() => setMobileOpen(false)}
+            >
+              CONTPAQi®
             </Link>
             <div className="flex flex-col gap-2 pt-4 border-t border-border/50">
               <Button variant="ghost" size="sm" asChild>

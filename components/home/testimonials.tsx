@@ -35,18 +35,10 @@ export function Testimonials() {
             Casos reales
           </span>
           <h2 className="font-display text-3xl font-bold tracking-tight text-foreground md:text-4xl">
-            Clientes que transformaron su operación con Montek{" "}
-            <span className="bg-gradient-to-r from-accent via-accent to-primary bg-clip-text text-transparent">
-              Nexus
-            </span>
+            Clientes que transformaron su operación con Montek
           </h2>
           <p className="mx-auto max-w-3xl text-lg leading-relaxed text-muted-foreground">
-            Historias de empresas que automatizaron procesos, aceleraron su operación y
-            obtuvieron reportes personalizados con{" "}
-            <span className="bg-gradient-to-r from-accent via-accent to-primary bg-clip-text text-transparent">
-              Nexus
-            </span>
-            .
+            Historias de empresas que automatizaron procesos, aceleraron su operación y mejoraron su control gracias a las soluciones de Montek.
           </p>
         </div>
 
