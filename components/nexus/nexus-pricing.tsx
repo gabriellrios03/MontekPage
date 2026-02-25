@@ -132,6 +132,7 @@ export function NexusPricing() {
             </div>
           </div>
         </div>
+
       </div>
     </section>
   )

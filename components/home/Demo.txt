@@ -1,0 +1,28 @@
+Primero debemos de tener un login 
+Ejemplo de peticion
+curl -X 'POST' \
+  'https://notable-special-caiman.ngrok-free.app/api/auth/login' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "usuario": "Gabriel.rios@montek.com.mx",
+  "contrasena": "lgriosafk1$"
+}'
+Respuesta OK
+{
+  "success": true,
+  "message": "Login exitoso.",
+  "token": "TokenRegresado"
+}
+
+
+Importante guardaremos el token para todas las peticiones en este software
+
+Una vez logeado correctamente selecionaremos la empresa con la que queremos trabajar 
+
+para eso las listamos con 
+
+postman request 'https://notable-special-caiman.ngrok-free.app/api/Empresas' \
+  --header 'accept: */*' \
+  --header 'Authorization: Bearer TokenRegresado' \
+  --auth-bearer-token 'TokenRegresado'
