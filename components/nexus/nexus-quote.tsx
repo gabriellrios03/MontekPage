@@ -48,7 +48,7 @@ function getRemainingMonths(expirationDate: Date, currentDate: Date) {
 
 const NEXUS_MODULES = [
   { id: 'nexus-sales', label: 'Nexus Sales', description: 'Documentos en línea, cotizaciones, facturas y pedidos sin estar en la misma red' },
-  { id: 'nexus-x-wantsoft', label: 'Nexus x WantSoft', description: 'Conexión con WantSoft y replicación de catálogos y documentos' },
+  { id: 'nexus-x-WanSoft', label: 'Nexus x WanSoft', description: 'Conexión con WanSoft y replicación de catálogos y documentos' },
   { id: 'nexus-x-odessa', label: 'Nexus x Odessa', description: 'Generación de layouts personalizados para Odessa' },
   { id: 'nexus-bi', label: 'Nexus BI', description: 'Reportes avanzados, KPIs en tiempo real y decisiones rápidas' },
   { id: 'nexus-devs', label: 'Nexus Devs', description: 'APIs para Comercial, Contabilidad y Bancos, e integración con plataformas externas' },

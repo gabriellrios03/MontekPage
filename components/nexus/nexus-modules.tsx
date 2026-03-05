@@ -28,17 +28,17 @@ const modules = [
   },
   {
     icon: Link2,
-    key: "nexus-x-wantsoft",
+    key: "nexus-x-WanSoft",
     name: (
       <>
         <span className="bg-gradient-to-r from-accent via-accent to-primary bg-clip-text text-transparent">
           Nexus
         </span>{" "}
-        x WantSoft
+        x WanSoft
       </>
     ),
     features: [
-      "Conexion con Wansoft",
+      "Conexion con WanSoft",
       "Replicacion de catalogos y documentos",
     ],
   },
@@ -92,18 +92,20 @@ const modules = [
   },
   {
     icon: FileCode,
-    key: "xml-connect",
+    key: "nexus-360",
     name: (
       <>
         <span className="bg-gradient-to-r from-accent via-accent to-primary bg-clip-text text-transparent">
           Nexus
         </span>{" "}
-        Import
+        360
       </>
     ),
     features: [
-      "Lectura automatica del ADD",
-      "Creacion de documentos de compra desde XML",
+      "Control de prestaciones de empresas",
+      "App para empleados",
+      "Control de subsidios",
+      "Recibos de nomina",
     ],
   },
   {
