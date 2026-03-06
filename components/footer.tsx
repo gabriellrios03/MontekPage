@@ -40,6 +40,11 @@ export function Footer() {
                   {"BI & Reportes"}
                 </Link>
               </li>
+              <li>
+                <Link href="/recursos" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                  Recursos Nexus
+                </Link>
+              </li>
             </ul>
           </div>
 

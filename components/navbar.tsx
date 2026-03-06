@@ -29,6 +29,9 @@ export function Navbar() {
           <Link href="/nexus" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Nexus
           </Link>
+          <Link href="/recursos" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+            Recursos
+          </Link>
           <Link href="/distribuidores" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Distribuidores
           </Link>
@@ -91,6 +94,13 @@ export function Navbar() {
               onClick={() => setMobileOpen(false)}
             >
               Nexus
+            </Link>
+            <Link
+              href="/recursos"
+              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              onClick={() => setMobileOpen(false)}
+            >
+              Recursos
             </Link>
             <Link
               href="/distribuidores"
