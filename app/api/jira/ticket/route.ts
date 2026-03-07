@@ -17,6 +17,17 @@ type JiraComment = {
   body?: JiraDocNode
 }
 
+type JiraHistory = {
+  id?: string
+  created?: string
+  author?: { displayName?: string }
+  items?: Array<{
+    field?: string
+    fromString?: string | null
+    toString?: string | null
+  }>
+}
+
 function formatJiraDate(value?: string): string {
   if (!value) {
     return "No disponible"
@@ -163,7 +174,7 @@ export async function GET(request: NextRequest) {
   }
 
   const { normalizedBaseUrl, authHeader } = config
-  const jiraIssueUrl = `${normalizedBaseUrl}/rest/api/3/issue/${encodeURIComponent(ticketKey)}?fields=summary,status,priority,issuetype,reporter,assignee,created,updated,project,labels,description,attachment,comment&expand=renderedFields`
+  const jiraIssueUrl = `${normalizedBaseUrl}/rest/api/3/issue/${encodeURIComponent(ticketKey)}?fields=summary,status,priority,issuetype,reporter,assignee,created,updated,project,labels,description,attachment,comment&expand=renderedFields,changelog`
 
   const jiraResponse = await fetch(jiraIssueUrl, {
     method: "GET",
@@ -250,6 +261,27 @@ export async function GET(request: NextRequest) {
       }))
     : []
 
+  const history: Array<{
+    id: string
+    author: string
+    createdAt: string
+    changes: string[]
+  }> = Array.isArray(issue?.changelog?.histories)
+    ? issue.changelog.histories.map((entry: JiraHistory) => ({
+        id: entry?.id ?? "",
+        author: entry?.author?.displayName ?? "Usuario",
+        createdAt: formatJiraDate(entry?.created),
+        changes: Array.isArray(entry?.items)
+          ? entry.items.map((change) => {
+              const from = change?.fromString?.trim() || "vacio"
+              const to = change?.toString?.trim() || "vacio"
+              const field = change?.field?.trim() || "Campo"
+              return `${field}: ${from} -> ${to}`
+            })
+          : [],
+      }))
+    : []
+
   return NextResponse.json({
     key: issue?.key ?? ticketKey,
     summary: fields?.summary ?? "Sin resumen",
@@ -265,6 +297,7 @@ export async function GET(request: NextRequest) {
     descriptionMarkdown: descriptionMarkdown || "Sin descripcion",
     attachments,
     comments,
+    history,
     createdAt: formatJiraDate(fields?.created),
     updatedAt: formatJiraDate(fields?.updated),
     browseUrl: `${normalizedBaseUrl}/browse/${issue?.key ?? ticketKey}`,

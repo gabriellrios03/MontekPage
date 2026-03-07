@@ -11,7 +11,6 @@ import {
   ChevronDown,
   ChevronUp,
   Clock,
-  ExternalLink,
   FileText,
   Loader2,
   MessageSquare,
@@ -19,6 +18,7 @@ import {
   RefreshCw,
   Search,
   Send,
+  History,
   Tag,
   User,
   Users,
@@ -50,6 +50,12 @@ type TicketResponse = {
     createdAt: string
     bodyMarkdown: string
   }>
+  history: Array<{
+    id: string
+    author: string
+    createdAt: string
+    changes: string[]
+  }>
   createdAt: string
   updatedAt: string
   browseUrl: string
@@ -71,13 +77,14 @@ function normalizeTicketResponse(payload: any): TicketResponse {
     descriptionMarkdown: payload?.descriptionMarkdown ?? "Sin descripcion",
     attachments: Array.isArray(payload?.attachments) ? payload.attachments : [],
     comments: Array.isArray(payload?.comments) ? payload.comments : [],
+    history: Array.isArray(payload?.history) ? payload.history : [],
     createdAt: payload?.createdAt ?? "No disponible",
     updatedAt: payload?.updatedAt ?? "No disponible",
     browseUrl: payload?.browseUrl ?? "#",
   }
 }
 
-type ActiveTab = "details" | "comments"
+type ActiveTab = "details" | "comments" | "history"
 
 export function TicketConsultation() {
   const [ticketKey, setTicketKey] = useState("")
@@ -223,6 +230,11 @@ export function TicketConsultation() {
     return <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
   }
 
+  const safeComments = Array.isArray(ticket?.comments) ? ticket.comments : []
+  const safeHistory = Array.isArray(ticket?.history) ? ticket.history : []
+  const safeAttachments = Array.isArray(ticket?.attachments) ? ticket.attachments : []
+  const safeLabels = Array.isArray(ticket?.labels) ? ticket.labels : []
+
   return (
     <section className="relative w-full px-6 pb-24 sm:px-10">
       <div className="rounded-3xl border border-border bg-card/90 p-6 shadow-sm sm:p-8">
@@ -308,15 +320,6 @@ export function TicketConsultation() {
                     >
                       <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
                     </button>
-                    <a
-                      href={ticket.browseUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
-                    >
-                      <span className="hidden sm:inline">Abrir en Jira</span>
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
                   </div>
                 </div>
 
@@ -368,13 +371,35 @@ export function TicketConsultation() {
                 <span className="flex items-center justify-center gap-2">
                   <MessageSquare className="h-4 w-4" />
                   Comentarios
-                  {ticket.comments.length > 0 && (
+                  {safeComments.length > 0 && (
                     <span className={`rounded-full px-2 py-0.5 text-xs ${
                       activeTab === "comments"
                         ? "bg-primary-foreground/20 text-primary-foreground"
                         : "bg-primary/10 text-primary"
                     }`}>
-                      {ticket.comments.length}
+                      {safeComments.length}
+                    </span>
+                  )}
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab("history")}
+                className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition ${
+                  activeTab === "history"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                }`}
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <History className="h-4 w-4" />
+                  Historial
+                  {safeHistory.length > 0 && (
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${
+                      activeTab === "history"
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-primary/10 text-primary"
+                    }`}>
+                      {safeHistory.length}
                     </span>
                   )}
                 </span>
@@ -410,14 +435,14 @@ export function TicketConsultation() {
                   </div>
 
                   {/* Attachments */}
-                  {ticket.attachments?.length > 0 && (
+                  {safeAttachments.length > 0 && (
                     <div className="rounded-2xl border border-border bg-background p-5">
                       <h4 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                         <Paperclip className="h-4 w-4" />
-                        Adjuntos ({ticket.attachments.length})
+                        Adjuntos ({safeAttachments.length})
                       </h4>
                       <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                        {ticket.attachments.map((file) => (
+                        {safeAttachments.map((file) => (
                           <a
                             key={file.id || file.filename}
                             href={file.contentUrl ?? undefined}
@@ -436,7 +461,6 @@ export function TicketConsultation() {
                                 {formatFileSize(file.size)}
                               </p>
                             </div>
-                            <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
                           </a>
                         ))}
                       </div>
@@ -478,14 +502,14 @@ export function TicketConsultation() {
                     </dl>
                   </div>
 
-                  {ticket.labels?.length > 0 && (
+                  {safeLabels.length > 0 && (
                     <div className="rounded-2xl border border-border bg-background p-5">
                       <h4 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                         <Tag className="h-4 w-4" />
                         Etiquetas
                       </h4>
                       <div className="mt-3 flex flex-wrap gap-2">
-                        {ticket.labels.map((label) => (
+                        {safeLabels.map((label) => (
                           <span
                             key={label}
                             className="rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground"
@@ -498,7 +522,7 @@ export function TicketConsultation() {
                   )}
                 </div>
               </div>
-            ) : (
+            ) : activeTab === "comments" ? (
               <div className="space-y-6">
                 {/* Comment Form */}
                 <div className="rounded-2xl border border-border bg-background p-5">
@@ -563,12 +587,12 @@ export function TicketConsultation() {
                 <div className="rounded-2xl border border-border bg-background p-5">
                   <h4 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
                     <MessageSquare className="h-4 w-4" />
-                    Historial de comentarios ({ticket.comments.length})
+                    Historial de comentarios ({safeComments.length})
                   </h4>
 
-                  {ticket.comments.length > 0 ? (
+                  {safeComments.length > 0 ? (
                     <div className="mt-4 space-y-4">
-                      {ticket.comments.map((comment, index) => (
+                      {safeComments.map((comment, index) => (
                         <article
                           key={comment.id || `${comment.author}-${comment.createdAt}`}
                           className={`relative rounded-xl border border-border bg-card p-4 ${
@@ -612,6 +636,53 @@ export function TicketConsultation() {
                     </div>
                   )}
                 </div>
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-border bg-background p-5">
+                <h4 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                  <History className="h-4 w-4" />
+                  Historial del ticket ({safeHistory.length})
+                </h4>
+
+                {safeHistory.length > 0 ? (
+                  <div className="mt-4 space-y-4">
+                    {safeHistory.map((entry, index) => (
+                      <article
+                        key={entry.id || `${entry.author}-${entry.createdAt}-${index}`}
+                        className="rounded-xl border border-border bg-card p-4"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <p className="text-sm font-semibold text-card-foreground">
+                            {entry.author}
+                          </p>
+                          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            {entry.createdAt}
+                          </p>
+                        </div>
+
+                        {entry.changes.length > 0 ? (
+                          <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-foreground">
+                            {entry.changes.map((change, changeIndex) => (
+                              <li key={`${entry.id}-change-${changeIndex}`}>{change}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="mt-3 text-sm text-muted-foreground">
+                            Sin cambios detallados en este registro.
+                          </p>
+                        )}
+                      </article>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 text-center">
+                    <History className="h-10 w-10 text-muted-foreground/50" />
+                    <p className="mt-3 text-sm font-medium text-muted-foreground">
+                      Este ticket no tiene historial disponible
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
