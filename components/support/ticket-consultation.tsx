@@ -4,7 +4,25 @@ import { FormEvent, useState } from "react"
 import ReactMarkdown from "react-markdown"
 import rehypeHighlight from "rehype-highlight"
 import remarkGfm from "remark-gfm"
-import { AlertCircle, Loader2, Paperclip, Search } from "lucide-react"
+import {
+  AlertCircle,
+  Calendar,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  ExternalLink,
+  FileText,
+  Loader2,
+  MessageSquare,
+  Paperclip,
+  RefreshCw,
+  Search,
+  Send,
+  Tag,
+  User,
+  Users,
+} from "lucide-react"
 
 type TicketResponse = {
   key: string
@@ -59,6 +77,8 @@ function normalizeTicketResponse(payload: any): TicketResponse {
   }
 }
 
+type ActiveTab = "details" | "comments"
+
 export function TicketConsultation() {
   const [ticketKey, setTicketKey] = useState("")
   const [loading, setLoading] = useState(false)
@@ -68,6 +88,9 @@ export function TicketConsultation() {
   const [commentText, setCommentText] = useState("")
   const [commentLoading, setCommentLoading] = useState(false)
   const [commentFeedback, setCommentFeedback] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<ActiveTab>("details")
+  const [showDescription, setShowDescription] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
 
   async function fetchTicket(key: string) {
     const response = await fetch(`/api/jira/ticket?key=${encodeURIComponent(key)}`)
@@ -97,6 +120,7 @@ export function TicketConsultation() {
     try {
       const normalizedTicket = await fetchTicket(normalizedKey)
       setTicket(normalizedTicket)
+      setActiveTab("details")
     } catch (requestError) {
       setTicket(null)
       setError(
@@ -106,6 +130,20 @@ export function TicketConsultation() {
       )
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function handleRefresh() {
+    if (!ticket || refreshing) return
+
+    setRefreshing(true)
+    try {
+      const refreshedTicket = await fetchTicket(ticket.key)
+      setTicket(refreshedTicket)
+    } catch {
+      // Silent fail on refresh
+    } finally {
+      setRefreshing(false)
     }
   }
 
@@ -163,6 +201,28 @@ export function TicketConsultation() {
     }
   }
 
+  function getStatusColor(statusCategory: string) {
+    const category = statusCategory.toLowerCase()
+    if (category.includes("done") || category.includes("complete") || category.includes("terminado")) {
+      return "bg-emerald-500"
+    }
+    if (category.includes("progress") || category.includes("proceso")) {
+      return "bg-sky-500"
+    }
+    return "bg-amber-500"
+  }
+
+  function getPriorityIcon(priority: string) {
+    const p = priority.toLowerCase()
+    if (p.includes("high") || p.includes("alta") || p.includes("critical") || p.includes("critica")) {
+      return <span className="inline-block h-2 w-2 rounded-full bg-red-500" />
+    }
+    if (p.includes("medium") || p.includes("media")) {
+      return <span className="inline-block h-2 w-2 rounded-full bg-amber-500" />
+    }
+    return <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+  }
+
   return (
     <section className="relative w-full px-6 pb-24 sm:px-10">
       <div className="rounded-3xl border border-border bg-card/90 p-6 shadow-sm sm:p-8">
@@ -179,218 +239,385 @@ export function TicketConsultation() {
           informacion en Jira.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <label className="sr-only" htmlFor="ticket-key">
-            Clave del ticket
-          </label>
-          <input
-            id="ticket-key"
-            name="ticket-key"
-            value={ticketKey}
-            onChange={(event) => setTicketKey(event.target.value)}
-            placeholder="Ejemplo: MTK-123"
-            className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-          />
+        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <label className="sr-only" htmlFor="ticket-key">
+              Clave del ticket
+            </label>
+            <input
+              id="ticket-key"
+              name="ticket-key"
+              value={ticketKey}
+              onChange={(event) => setTicketKey(event.target.value)}
+              placeholder="Ejemplo: MTK-123"
+              className="h-12 w-full rounded-xl border border-border bg-background pl-11 pr-4 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto"
           >
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Consultando
+                Buscando...
               </>
             ) : (
-              <>
-                <Search className="h-4 w-4" />
-                Consultar
-              </>
+              "Consultar"
             )}
           </button>
         </form>
 
         {error ? (
-          <div className="mt-4 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-            {error}
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3">
+            <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+            <p className="text-sm text-destructive">{error}</p>
           </div>
         ) : null}
 
         {ticket ? (
-          <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-background/80">
-            <div className="border-b border-border bg-gradient-to-r from-primary/10 via-accent/10 to-transparent px-5 py-5 sm:px-6">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                    Ticket
-                  </p>
-                  <p className="mt-1 text-2xl font-black text-foreground">{ticket.key}</p>
-                  <p className="mt-2 max-w-3xl text-sm font-medium text-foreground sm:text-base">
-                    {ticket.summary}
-                  </p>
+          <div className="mt-8 space-y-6">
+            {/* Status Header Card */}
+            <div className="overflow-hidden rounded-2xl border border-border bg-background">
+              {/* Status Bar */}
+              <div className={`h-1.5 ${getStatusColor(ticket.statusCategory)}`} />
+              
+              <div className="p-5 sm:p-6">
+                {/* Header Row */}
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-3">
+                      <span className="shrink-0 rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-bold text-primary">
+                        {ticket.key}
+                      </span>
+                      <StatusBadge status={ticket.status} category={ticket.statusCategory} />
+                    </div>
+                    <h3 className="mt-3 text-lg font-semibold leading-snug text-foreground sm:text-xl">
+                      {ticket.summary}
+                    </h3>
+                  </div>
+                  
+                  <div className="flex shrink-0 items-center gap-2">
+                    <button
+                      onClick={handleRefresh}
+                      disabled={refreshing}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition hover:border-primary/40 hover:text-foreground disabled:opacity-50"
+                      title="Actualizar"
+                    >
+                      <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
+                    </button>
+                    <a
+                      href={ticket.browseUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+                    >
+                      <span className="hidden sm:inline">Abrir en Jira</span>
+                      <ExternalLink className="h-4 w-4" />
+                    </a>
+                  </div>
                 </div>
-              </div>
 
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Badge value={ticket.issueType} variant="blue" />
-                <Badge value={ticket.status} variant="green" />
-                <Badge value={ticket.priority} variant="amber" />
-                <Badge
-                  value={ticket.projectKey ? `${ticket.projectKey} - ${ticket.projectName}` : ticket.projectName}
-                  variant="slate"
-                />
+                {/* Quick Info Row */}
+                <div className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-3 border-t border-border pt-5">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <FileText className="h-4 w-4" />
+                    <span>{ticket.issueType}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    {getPriorityIcon(ticket.priority)}
+                    <span>{ticket.priority}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <User className="h-4 w-4" />
+                    <span>{ticket.assignee}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    <span>Actualizado: {ticket.updatedAt}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="px-5 py-5 sm:px-6">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Descripcion
-              </h3>
-              <div className="mt-3 max-h-[340px] overflow-y-auto rounded-xl border border-border bg-card/60 p-4">
-                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground sm:text-[15px]">
-                  {ticket.descriptionMarkdown}
-                </p>
-              </div>
+            {/* Tabs */}
+            <div className="flex gap-1 rounded-xl border border-border bg-background/50 p-1">
+              <button
+                onClick={() => setActiveTab("details")}
+                className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition ${
+                  activeTab === "details"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                }`}
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Detalles
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab("comments")}
+                className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition ${
+                  activeTab === "comments"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                }`}
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Comentarios
+                  {ticket.comments.length > 0 && (
+                    <span className={`rounded-full px-2 py-0.5 text-xs ${
+                      activeTab === "comments"
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-primary/10 text-primary"
+                    }`}>
+                      {ticket.comments.length}
+                    </span>
+                  )}
+                </span>
+              </button>
+            </div>
 
-              <div className="mt-5 grid gap-5 lg:grid-cols-[1.3fr_0.7fr]">
-                <div>
-                  {ticket.attachments?.length > 0 ? (
-                    <>
-                      <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                        Adjuntos
+            {/* Tab Content */}
+            {activeTab === "details" ? (
+              <div className="grid gap-6 lg:grid-cols-3">
+                {/* Main Content */}
+                <div className="space-y-6 lg:col-span-2">
+                  {/* Description */}
+                  <div className="rounded-2xl border border-border bg-background p-5">
+                    <button
+                      onClick={() => setShowDescription(!showDescription)}
+                      className="flex w-full items-center justify-between text-left"
+                    >
+                      <h4 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                        <FileText className="h-4 w-4" />
+                        Descripcion
                       </h4>
-                      <div className="mt-3 grid gap-2">
+                      {showDescription ? (
+                        <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </button>
+                    {showDescription && (
+                      <div className="mt-4 max-h-[400px] overflow-y-auto rounded-xl border border-border bg-card/50 p-4">
+                        <MarkdownContent content={ticket.descriptionMarkdown} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Attachments */}
+                  {ticket.attachments?.length > 0 && (
+                    <div className="rounded-2xl border border-border bg-background p-5">
+                      <h4 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                        <Paperclip className="h-4 w-4" />
+                        Adjuntos ({ticket.attachments.length})
+                      </h4>
+                      <div className="mt-4 grid gap-2 sm:grid-cols-2">
                         {ticket.attachments.map((file) => (
                           <a
                             key={file.id || file.filename}
                             href={file.contentUrl ?? undefined}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-3 py-2 text-sm text-card-foreground transition hover:border-primary/40"
+                            className="group flex items-center gap-3 rounded-xl border border-border bg-card p-3 transition hover:border-primary/40 hover:shadow-sm"
                           >
-                            <span className="inline-flex min-w-0 items-center gap-2">
-                              <Paperclip className="h-4 w-4 shrink-0 text-primary" />
-                              <span className="truncate">{file.filename}</span>
-                            </span>
-                            <span className="shrink-0 text-xs text-muted-foreground">
-                              {formatFileSize(file.size)}
-                            </span>
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                              <Paperclip className="h-5 w-5 text-primary" />
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="truncate text-sm font-medium text-card-foreground group-hover:text-primary">
+                                {file.filename}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatFileSize(file.size)}
+                              </p>
+                            </div>
+                            <ExternalLink className="h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
                           </a>
                         ))}
                       </div>
-                    </>
-                  ) : null}
+                    </div>
+                  )}
                 </div>
 
-                <div className="grid content-start gap-3">
-                  <Info label="Estatus" value={ticket.status} />
-                  <Info label="Categoria" value={ticket.statusCategory} />
-                  <Info label="Tipo" value={ticket.issueType} />
-                  <Info label="Prioridad" value={ticket.priority} />
-                  <Info label="Reportado por" value={ticket.reporter} />
-                  <Info label="Asignado a" value={ticket.assignee} />
-                  <Info label="Creado" value={ticket.createdAt} />
-                  <Info label="Ultima actualizacion" value={ticket.updatedAt} />
+                {/* Sidebar Info */}
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-border bg-background p-5">
+                    <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                      Informacion
+                    </h4>
+                    <dl className="mt-4 space-y-4">
+                      <InfoRow icon={<CheckCircle2 className="h-4 w-4" />} label="Estatus" value={ticket.status} />
+                      <InfoRow icon={<Tag className="h-4 w-4" />} label="Categoria" value={ticket.statusCategory} />
+                      <InfoRow icon={<FileText className="h-4 w-4" />} label="Tipo" value={ticket.issueType} />
+                      <InfoRow icon={getPriorityIcon(ticket.priority)} label="Prioridad" value={ticket.priority} />
+                    </dl>
+                  </div>
 
-                  {ticket.labels?.length > 0 ? (
-                    <div className="rounded-xl border border-border bg-card px-4 py-3">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <div className="rounded-2xl border border-border bg-background p-5">
+                    <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                      Personas
+                    </h4>
+                    <dl className="mt-4 space-y-4">
+                      <InfoRow icon={<User className="h-4 w-4" />} label="Reportado por" value={ticket.reporter} />
+                      <InfoRow icon={<Users className="h-4 w-4" />} label="Asignado a" value={ticket.assignee} />
+                    </dl>
+                  </div>
+
+                  <div className="rounded-2xl border border-border bg-background p-5">
+                    <h4 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                      Fechas
+                    </h4>
+                    <dl className="mt-4 space-y-4">
+                      <InfoRow icon={<Calendar className="h-4 w-4" />} label="Creado" value={ticket.createdAt} />
+                      <InfoRow icon={<Clock className="h-4 w-4" />} label="Actualizado" value={ticket.updatedAt} />
+                    </dl>
+                  </div>
+
+                  {ticket.labels?.length > 0 && (
+                    <div className="rounded-2xl border border-border bg-background p-5">
+                      <h4 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                        <Tag className="h-4 w-4" />
                         Etiquetas
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-2">
+                      </h4>
+                      <div className="mt-3 flex flex-wrap gap-2">
                         {ticket.labels.map((label) => (
                           <span
                             key={label}
-                            className="rounded-full border border-border bg-background px-2.5 py-1 text-xs font-medium text-foreground"
+                            className="rounded-full border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground"
                           >
                             {label}
                           </span>
                         ))}
                       </div>
                     </div>
-                  ) : null}
+                  )}
                 </div>
               </div>
-            </div>
-
-            <div className="border-t border-border px-5 py-5 sm:px-6">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Agregar comentario
-              </h3>
-
-              <form onSubmit={handleCommentSubmit} className="mt-3 grid gap-3">
-                <div className="grid gap-2 sm:max-w-md">
-                  <label htmlFor="comment-name" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Nombre
-                  </label>
-                  <input
-                    id="comment-name"
-                    value={authorName}
-                    onChange={(event) => setAuthorName(event.target.value)}
-                    placeholder="Tu nombre"
-                    className="h-11 rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-
-                <div className="grid gap-2">
-                  <label htmlFor="comment-text" className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                    Comentario
-                  </label>
-                  <textarea
-                    id="comment-text"
-                    value={commentText}
-                    onChange={(event) => setCommentText(event.target.value)}
-                    placeholder="Escribe tu comentario"
-                    rows={4}
-                    className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-
-                <div className="flex flex-wrap items-center gap-3">
-                  <button
-                    type="submit"
-                    disabled={commentLoading}
-                    className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {commentLoading ? "Enviando..." : "Enviar comentario"}
-                  </button>
-                  {commentFeedback ? (
-                    <p className="text-sm text-muted-foreground">{commentFeedback}</p>
-                  ) : null}
-                </div>
-              </form>
-
-              <h3 className="mt-8 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Comentarios ({ticket.comments.length})
-              </h3>
-
-              {ticket.comments.length > 0 ? (
-                <div className="mt-4 space-y-3">
-                  {ticket.comments.map((comment) => (
-                    <article
-                      key={comment.id || `${comment.author}-${comment.createdAt}`}
-                      className="rounded-xl border border-border bg-card p-4"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <p className="text-sm font-semibold text-card-foreground">
-                          {comment.author}
+            ) : (
+              <div className="space-y-6">
+                {/* Comment Form */}
+                <div className="rounded-2xl border border-border bg-background p-5">
+                  <h4 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                    <Send className="h-4 w-4" />
+                    Agregar comentario
+                  </h4>
+                  <form onSubmit={handleCommentSubmit} className="mt-4 space-y-4">
+                    <div>
+                      <label htmlFor="comment-name" className="mb-2 block text-sm font-medium text-foreground">
+                        Tu nombre
+                      </label>
+                      <input
+                        id="comment-name"
+                        value={authorName}
+                        onChange={(event) => setAuthorName(event.target.value)}
+                        placeholder="Escribe tu nombre"
+                        className="h-11 w-full rounded-xl border border-border bg-card px-4 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 sm:max-w-sm"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="comment-text" className="mb-2 block text-sm font-medium text-foreground">
+                        Mensaje
+                      </label>
+                      <textarea
+                        id="comment-text"
+                        value={commentText}
+                        onChange={(event) => setCommentText(event.target.value)}
+                        placeholder="Escribe tu comentario aqui..."
+                        rows={4}
+                        className="w-full rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                      />
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        type="submit"
+                        disabled={commentLoading}
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-70"
+                      >
+                        {commentLoading ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Enviando...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="h-4 w-4" />
+                            Enviar comentario
+                          </>
+                        )}
+                      </button>
+                      {commentFeedback && (
+                        <p className={`text-sm ${commentFeedback.includes("correctamente") ? "text-emerald-600" : "text-muted-foreground"}`}>
+                          {commentFeedback}
                         </p>
-                        <p className="text-xs text-muted-foreground">{comment.createdAt}</p>
-                      </div>
-                      <MarkdownContent content={comment.bodyMarkdown} compact />
-                    </article>
-                  ))}
+                      )}
+                    </div>
+                  </form>
                 </div>
-              ) : (
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Este ticket no tiene comentarios todavia.
-                </p>
-              )}
-            </div>
+
+                {/* Comments List */}
+                <div className="rounded-2xl border border-border bg-background p-5">
+                  <h4 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                    <MessageSquare className="h-4 w-4" />
+                    Historial de comentarios ({ticket.comments.length})
+                  </h4>
+
+                  {ticket.comments.length > 0 ? (
+                    <div className="mt-4 space-y-4">
+                      {ticket.comments.map((comment, index) => (
+                        <article
+                          key={comment.id || `${comment.author}-${comment.createdAt}`}
+                          className={`relative rounded-xl border border-border bg-card p-4 ${
+                            index === 0 ? "ring-1 ring-primary/20" : ""
+                          }`}
+                        >
+                          {index === 0 && (
+                            <span className="absolute -top-2.5 right-3 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase text-primary-foreground">
+                              Mas reciente
+                            </span>
+                          )}
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                              {comment.author.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
+                                <p className="text-sm font-semibold text-card-foreground">
+                                  {comment.author}
+                                </p>
+                                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                  <Clock className="h-3 w-3" />
+                                  {comment.createdAt}
+                                </p>
+                              </div>
+                              <MarkdownContent content={comment.bodyMarkdown} compact />
+                            </div>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-10 text-center">
+                      <MessageSquare className="h-10 w-10 text-muted-foreground/50" />
+                      <p className="mt-3 text-sm font-medium text-muted-foreground">
+                        Este ticket no tiene comentarios todavia
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground/70">
+                        Se el primero en agregar un comentario
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         ) : null}
 
-        <p className="mt-4 inline-flex items-center gap-2 text-xs text-muted-foreground">
+        <p className="mt-6 inline-flex items-center gap-2 text-xs text-muted-foreground">
           <AlertCircle className="h-3.5 w-3.5" />
           Consulta en tiempo real usando tu cuenta de Jira.
         </p>
@@ -399,19 +626,53 @@ export function TicketConsultation() {
   )
 }
 
-type InfoProps = {
+type InfoRowProps = {
+  icon: React.ReactNode
   label: string
   value: string
 }
 
-function Info({ label, value }: InfoProps) {
+function InfoRow({ icon, label, value }: InfoRowProps) {
   return (
-    <div className="rounded-xl border border-border bg-card px-4 py-3">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-        {label}
-      </p>
-      <p className="mt-1 text-sm font-medium text-card-foreground">{value}</p>
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 text-muted-foreground">{icon}</div>
+      <div className="min-w-0 flex-1">
+        <dt className="text-xs text-muted-foreground">{label}</dt>
+        <dd className="mt-0.5 text-sm font-medium text-foreground">{value}</dd>
+      </div>
     </div>
+  )
+}
+
+type StatusBadgeProps = {
+  status: string
+  category: string
+}
+
+function StatusBadge({ status, category }: StatusBadgeProps) {
+  const cat = category.toLowerCase()
+  let colors = "border-amber-300/50 bg-amber-100 text-amber-900"
+  
+  if (cat.includes("done") || cat.includes("complete") || cat.includes("terminado")) {
+    colors = "border-emerald-300/50 bg-emerald-100 text-emerald-900"
+  } else if (cat.includes("progress") || cat.includes("proceso")) {
+    colors = "border-sky-300/50 bg-sky-100 text-sky-900"
+  }
+
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${colors}`}>
+      <span className="relative flex h-2 w-2">
+        <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${
+          cat.includes("done") || cat.includes("complete") ? "bg-emerald-400" :
+          cat.includes("progress") || cat.includes("proceso") ? "bg-sky-400" : "bg-amber-400"
+        }`} />
+        <span className={`relative inline-flex h-2 w-2 rounded-full ${
+          cat.includes("done") || cat.includes("complete") ? "bg-emerald-500" :
+          cat.includes("progress") || cat.includes("proceso") ? "bg-sky-500" : "bg-amber-500"
+        }`} />
+      </span>
+      {status}
+    </span>
   )
 }
 
@@ -427,28 +688,6 @@ function formatFileSize(value: number | null): string {
 
   const kb = value / 1024
   return `${kb.toFixed(0)} KB`
-}
-
-type BadgeProps = {
-  value: string
-  variant: "blue" | "green" | "amber" | "slate"
-}
-
-function Badge({ value, variant }: BadgeProps) {
-  const variants: Record<BadgeProps["variant"], string> = {
-    blue: "border-sky-300/50 bg-sky-100 text-sky-900",
-    green: "border-emerald-300/50 bg-emerald-100 text-emerald-900",
-    amber: "border-amber-300/50 bg-amber-100 text-amber-900",
-    slate: "border-slate-300/60 bg-slate-100 text-slate-900",
-  }
-
-  return (
-    <span
-      className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${variants[variant]}`}
-    >
-      {value}
-    </span>
-  )
 }
 
 type MarkdownContentProps = {
