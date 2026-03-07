@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { ArrowUpRight } from "lucide-react"
+import { Mail, MessageCircle } from "lucide-react"
 import { TicketConsultation } from "@/components/support/ticket-consultation"
 
 export const metadata: Metadata = {
@@ -8,24 +8,21 @@ export const metadata: Metadata = {
     "Centro de soporte para reportar problemas y solicitar cambios en Nexus.",
 }
 
-const supportLinks = [
+const ticketScenarios = [
   {
     title: "Desarrollo a Medida en Nexus",
     description:
-      "Solicitud para desarrollo a medida dentro de Nexus.",
-    href: "https://montek.atlassian.net/jira/software/form/f7f6b099-71a2-4604-a500-88b7f22e642e?atlOrigin=eyJpIjoiOGNhZGI3ZjQ4ZGM0NGJjNGJkM2QyNTMwNjA1YTU2ZTIiLCJwIjoiaiJ9",
+      "Cuando necesitas una nueva funcionalidad, flujo o integracion que hoy no existe en Nexus.",
   },
   {
-    title: "Personalizacion de Funcionalidad Existente",
+    title: "Modificacion de Funcionalidad Existente",
     description:
-      "Requerimiento para personalizar algo que ya existe en Nexus.",
-    href: "https://montek.atlassian.net/jira/software/form/ae3bd005-a25f-4bb9-ae4c-f4e402f0a2ba?atlOrigin=eyJpIjoiYzM0Y2QxOTllNzdhNDNmMzg3MTAyYzljNGU0ZjliZGUiLCJwIjoiaiJ9",
+      "Cuando quieres ajustar pantallas, reglas o procesos que ya funcionan dentro de Nexus.",
   },
   {
     title: "Reporte de Bug o Mal Funcionamiento",
     description:
-      "Formulario para reportar errores o fallas de funcionamiento.",
-    href: "https://montek.atlassian.net/jira/software/form/09500329-130a-4bf4-9dfa-0c3d3ab59d65?atlOrigin=eyJpIjoiNTFjMGMyZjVjYzRjNGRiNWE2NzUyYjQ0MGZhMjU5ZTYiLCJwIjoiaiJ9",
+      "Cuando detectas errores, datos incorrectos o comportamientos inesperados en la plataforma.",
   },
 ]
 
@@ -47,30 +44,41 @@ export default function SoportePage() {
         </h1>
 
         <p className="mt-4 max-w-2xl text-base text-muted-foreground sm:text-lg">
-          Selecciona el tipo de solicitud. Todos los formularios se abren en una
-          pagina aparte.
+          Para abrir un ticket, contactanos primero por WhatsApp o correo. Nuestro
+          equipo registra tu caso y te comparte un ID con formato MTK-#### para
+          darle seguimiento aqui.
         </p>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <a
+            href="https://wa.me/528110089607"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:text-primary"
+          >
+            <MessageCircle className="h-4 w-4" />
+            WhatsApp: +52 81 1008 9607
+          </a>
+          <a
+            href="mailto:nexus@montek.com.mx"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-3 text-sm font-semibold text-foreground transition hover:border-primary/40 hover:text-primary"
+          >
+            <Mail className="h-4 w-4" />
+            nexus@montek.com.mx
+          </a>
+        </div>
       </section>
 
       <section className="relative grid w-full gap-6 px-6 pb-20 sm:grid-cols-2 sm:px-10 xl:grid-cols-3">
-        {supportLinks.map((item) => (
+        {ticketScenarios.map((item) => (
           <article
-            key={item.href}
+            key={item.title}
             className="group rounded-2xl border border-border bg-card/90 p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
           >
             <h2 className="text-xl font-bold text-card-foreground">{item.title}</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               {item.description}
             </p>
-            <a
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition hover:border-primary/60 hover:bg-primary/15"
-            >
-              Abrir formulario
-              <ArrowUpRight className="h-4 w-4" />
-            </a>
           </article>
         ))}
       </section>
