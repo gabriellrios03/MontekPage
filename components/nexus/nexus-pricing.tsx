@@ -97,7 +97,7 @@ export function NexusPricing() {
                   "Incluye 1 usuario",
                   "Acceso a todos los modulos",
                   "Actualizaciones continuas",
-                  "Incluye creditos de $5,000.00 MXN",
+                  "Incluye 10 Horas Labs",
                 ].map((feature) => (
                   <div key={feature} className="flex items-center gap-3">
                     <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent">
