@@ -29,11 +29,14 @@ export function Navbar() {
           <Link href="/nexus" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Nexus
           </Link>
-          <Link href="/recursos" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            Recursos
-          </Link>
           <Link href="/distribuidores" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Distribuidores
+          </Link>
+          <Link href="/webinars" className="relative flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
+            Webinars
+            <span className="inline-flex items-center rounded-full bg-green-500/15 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-green-500 ring-1 ring-green-500/30">
+              Gratis
+            </span>
           </Link>
         </div>
 
@@ -96,18 +99,21 @@ export function Navbar() {
               Nexus
             </Link>
             <Link
-              href="/recursos"
-              className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => setMobileOpen(false)}
-            >
-              Recursos
-            </Link>
-            <Link
               href="/distribuidores"
               className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               onClick={() => setMobileOpen(false)}
             >
               Distribuidores
+            </Link>
+            <Link
+              href="/webinars"
+              className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              onClick={() => setMobileOpen(false)}
+            >
+              Webinars
+              <span className="inline-flex items-center rounded-full bg-green-500/15 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-green-500 ring-1 ring-green-500/30">
+                Gratis
+              </span>
             </Link>
             <div className="flex flex-col gap-2 pt-4 border-t border-border/50">
               <Button variant="ghost" size="sm" asChild>
