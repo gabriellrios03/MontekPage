@@ -4,7 +4,7 @@ import { Footer } from "@/components/footer"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Calendar, Clock, ExternalLink } from "lucide-react"
+import { Calendar, Clock, ExternalLink, ArrowRight } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Webinars | Montek",
@@ -95,75 +95,142 @@ export default function WebinarsPage() {
   return (
     <>
       <Navbar />
-      <main className="px-4 py-12 sm:px-6 lg:py-24">
-        <section className="mx-auto max-w-4xl">
-          <div className="text-center">
-            <h1 className="text-center font-display text-3xl font-bold text-foreground sm:text-4xl">
-              Sesiones en Vivo Nexus
-            </h1>
-            <p className="text-lg font-semibold text-primary mt-2">Potenciando CONTPAQi®</p>
-            <p className="mx-auto mt-4 max-w-3xl text-center text-sm text-muted-foreground sm:text-base">
-              Durante esta semana, conoce cómo llevar tu operación al siguiente nivel con Nexus, una plataforma diseñada para potenciar CONTPAQi® a través de herramientas modernas, accesibles y enfocadas en resultados.
-            </p>
-            <p className="mx-auto mt-3 max-w-3xl text-center text-sm text-muted-foreground">
-              Todas las sesiones son <span className="font-semibold text-foreground">100% en vivo</span>, virtuales y con duración aproximada de <span className="font-semibold text-foreground">45 minutos</span>.
-            </p>
-          </div>
-
-          <div className="mt-12 space-y-8">
-            {groupedWebinars.map((group) => (
-              <div key={group.day}>
-                <div className="mb-4 flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-primary" />
-                  <h2 className="text-lg font-semibold text-foreground">{group.day}</h2>
-                </div>
-                <div className="space-y-3">
-                  {group.webinars.map((webinar, idx) => (
-                    <Card
-                      key={idx}
-                      className="border border-border bg-card p-4 transition-all hover:shadow-md hover:border-primary/50 sm:p-5"
-                    >
-                      <div className="flex flex-col gap-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-semibold text-foreground">{webinar.title}</h3>
-                          <Badge
-                            variant="secondary"
-                            className="bg-green-500/15 text-green-500 hover:bg-green-500/15 ring-1 ring-green-500/30"
-                          >
-                            Gratis
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{webinar.description}</p>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Clock className="h-4 w-4" />
-                          <span>{webinar.time}</span>
-                        </div>
-                        <Button
-                          asChild
-                          className="mt-2 w-full sm:w-auto"
-                          variant="default"
-                        >
-                          <a href={webinar.link} target="_blank" rel="noopener noreferrer">
-                            Unirse
-                            <ExternalLink className="ml-2 h-4 w-4" />
-                          </a>
-                        </Button>
-                      </div>
-                    </Card>
-                  ))}
+      <main className="min-h-screen bg-background">
+        {/* Hero Section */}
+        <section className="border-b border-border px-4 py-16 sm:px-6 lg:py-24">
+          <div className="mx-auto max-w-5xl">
+            <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+              <div>
+                <Badge className="mb-4 bg-primary/10 text-primary hover:bg-primary/20">
+                  Sesiones en Vivo
+                </Badge>
+                <h1 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
+                  Potencia tu operación con
+                  <span className="block text-primary">Nexus</span>
+                </h1>
+                <p className="mt-6 text-lg text-muted-foreground">
+                  Aprende cómo llevar tu gestión de CONTPAQi® al siguiente nivel con herramientas modernas, accesibles y enfocadas en resultados.
+                </p>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                    <span className="text-sm text-muted-foreground">100% En vivo</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                    <span className="text-sm text-muted-foreground">Completamente gratis</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-green-500" />
+                    <span className="text-sm text-muted-foreground">45 minutos</span>
+                  </div>
                 </div>
               </div>
-            ))}
+              <div className="relative">
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 blur-3xl" />
+                <div className="relative rounded-2xl border border-primary/20 bg-card p-8">
+                  <div className="space-y-4">
+                    <div className="flex items-start gap-3">
+                      <div className="rounded-lg bg-primary/10 p-3">
+                        <Calendar className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-muted-foreground">Próximas sesiones</p>
+                        <p className="text-lg font-bold text-foreground">Semana del 27 de abril</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <div className="rounded-lg bg-green-500/10 p-3">
+                        <Clock className="h-5 w-5 text-green-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-muted-foreground">Horarios</p>
+                        <p className="text-lg font-bold text-foreground">10:00 AM y 3:00 PM</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </section>
 
-          <div className="mt-12 rounded-lg border border-border bg-card/50 p-6 sm:p-8">
-            <h3 className="font-semibold text-foreground mb-2">¿Necesitas más información?</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Si tienes preguntas sobre algún webinar o necesitas capacitación personalizada, no dudes en contactarnos.
+        {/* Timeline Section */}
+        <section className="px-4 py-16 sm:px-6 lg:py-24">
+          <div className="mx-auto max-w-4xl">
+            <h2 className="mb-12 text-center text-3xl font-bold text-foreground">Cronograma de Sesiones</h2>
+            <div className="space-y-8">
+              {groupedWebinars.map((group, dayIdx) => (
+                <div key={group.day} className="relative">
+                  {/* Day Header */}
+                  <div className="mb-6 flex items-center gap-3">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                      <Calendar className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-foreground">{group.day}</h3>
+                    </div>
+                  </div>
+
+                  {/* Timeline Line */}
+                  <div className="ml-5 space-y-4 border-l-2 border-border pl-8">
+                    {group.webinars.map((webinar, idx) => (
+                      <div key={idx} className="relative">
+                        {/* Timeline Dot */}
+                        <div className="absolute -left-10 top-2 h-4 w-4 rounded-full border-2 border-border bg-background" />
+
+                        {/* Card */}
+                        <Card className="group border border-border bg-card p-6 transition-all hover:border-primary/50 hover:shadow-lg">
+                          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="flex-1">
+                              <div className="mb-2 flex flex-wrap items-center gap-2">
+                                <h4 className="text-lg font-semibold text-foreground">{webinar.title}</h4>
+                                <Badge className="bg-green-500/15 text-green-500 hover:bg-green-500/15">
+                                  Gratis
+                                </Badge>
+                              </div>
+                              <p className="mb-3 text-sm text-muted-foreground">{webinar.description}</p>
+                              <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                                <Clock className="h-4 w-4" />
+                                {webinar.time}
+                              </div>
+                            </div>
+                            <Button
+                              asChild
+                              size="sm"
+                              className="mt-4 w-full sm:mt-0 sm:w-auto"
+                            >
+                              <a href={webinar.link} target="_blank" rel="noopener noreferrer">
+                                Unirse
+                                <ArrowRight className="ml-2 h-4 w-4" />
+                              </a>
+                            </Button>
+                          </div>
+                        </Card>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="border-t border-border bg-card/50 px-4 py-16 sm:px-6 lg:py-24">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="mb-4 text-2xl font-bold text-foreground">¿Listo para transformar tu operación?</h2>
+            <p className="mb-8 text-muted-foreground">
+              Únete a nuestras sesiones en vivo y descubre cómo Nexus puede potenciar tu gestión con CONTPAQi®
             </p>
-            <Button asChild>
-              <a href="/Soporte">Contactar Soporte</a>
-            </Button>
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <Button asChild>
+                <a href="/Soporte">Contactar Soporte</a>
+              </Button>
+              <Button asChild variant="outline">
+                <a href="/">Volver al inicio</a>
+              </Button>
+            </div>
           </div>
         </section>
       </main>
